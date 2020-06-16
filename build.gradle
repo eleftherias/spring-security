@@ -9,6 +9,7 @@ buildscript {
 	repositories {
 		maven { url 'https://repo.spring.io/plugins-snapshot' }
 		maven { url 'https://plugins.gradle.org/m2/' }
+		maven { url "https://dl.bintray.com/kotlin/kotlin-eap" } //
 	}
 }
 
@@ -28,6 +29,7 @@ dependencyManagementExport.projects = subprojects.findAll { !it.name.contains('-
 
 repositories {
 	mavenCentral()
+	maven { url "https://dl.bintray.com/kotlin/kotlin-eap" } //
 }
 
 subprojects {

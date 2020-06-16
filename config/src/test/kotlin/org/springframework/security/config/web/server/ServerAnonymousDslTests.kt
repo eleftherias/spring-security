@@ -55,37 +55,39 @@ class ServerAnonymousDslTests {
                 .build()
     }
 
-    @Test
-    fun `authentication when anonymous enabled then is of type anonymous authentication`() {
-        this.spring.register(AnonymousConfig::class.java, HttpMeController::class.java).autowire()
-
-        this.client.get()
-                .uri("/principal")
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<String>().isEqualTo("anonymousUser")
-    }
-
-    @EnableWebFluxSecurity
-    @EnableWebFlux
-    open class AnonymousConfig {
-        @Bean
-        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-            return http {
-                anonymous { }
-            }
-        }
-    }
+//    @Test
+//    fun `authentication when anonymous enabled then is of type anonymous authentication`() {
+//        this.spring.register(AnonymousConfig::class.java, HttpMeController::class.java).autowire()
+//
+//        this.client.get()
+//                .uri("/principal")
+//                .exchange()
+//                .expectStatus().isOk
+//                .expectBody<String>().isEqualTo("anonymousUser")
+//    }
+//
+//    @EnableWebFluxSecurity
+//    @EnableWebFlux
+//    open class AnonymousConfig {
+//        @Bean
+//        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+//            return http {
+//                anonymous { }
+//            }
+//        }
+//    }
 
     @Test
     fun `anonymous when custom principal specified then custom principal is used`() {
         this.spring.register(CustomPrincipalConfig::class.java, HttpMeController::class.java).autowire()
 
-        this.client.get()
+        val exchange = this.client.get()
                 .uri("/principal")
                 .exchange()
+        exchange
                 .expectStatus().isOk
-                .expectBody<String>().isEqualTo("anon")
+
+        exchange.expectBody<String>().isEqualTo("anon")
     }
 
     @EnableWebFluxSecurity
@@ -100,81 +102,81 @@ class ServerAnonymousDslTests {
             }
         }
     }
-
-    @Test
-    fun `anonymous when disabled then principal is null`() {
-        this.spring.register(AnonymousDisabledConfig::class.java, HttpMeController::class.java).autowire()
-
-        this.client.get()
-                .uri("/principal")
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<String>().consumeWith { body -> assertThat(body.responseBody).isNull() }
-    }
-
-    @EnableWebFluxSecurity
-    @EnableWebFlux
-    open class AnonymousDisabledConfig {
-        @Bean
-        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-            return http {
-                anonymous {
-                    disable()
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `anonymous when custom key specified then custom key used`() {
-        this.spring.register(CustomKeyConfig::class.java, HttpMeController::class.java).autowire()
-
-        this.client.get()
-                .uri("/key")
-                .exchange()
-                .expectStatus().isOk
-                .expectBody<String>().isEqualTo("key".hashCode().toString())
-    }
-
-    @EnableWebFluxSecurity
-    @EnableWebFlux
-    open class CustomKeyConfig {
-        @Bean
-        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-            return http {
-                anonymous {
-                    key = "key"
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `anonymous when custom authorities specified then custom authorities used`() {
-        this.spring.register(CustomAuthoritiesConfig::class.java, HttpMeController::class.java).autowire()
-
-        this.client.get()
-                .uri("/principal")
-                .exchange()
-                .expectStatus().isOk
-    }
-
-    @EnableWebFluxSecurity
-    @EnableWebFlux
-    open class CustomAuthoritiesConfig {
-        @Bean
-        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-            return http {
-                anonymous {
-                    authorities = listOf(SimpleGrantedAuthority("TEST"))
-                }
-                authorizeExchange {
-                    authorize(anyExchange, hasAuthority("TEST"))
-                }
-            }
-        }
-    }
-
+//
+//    @Test
+//    fun `anonymous when disabled then principal is null`() {
+//        this.spring.register(AnonymousDisabledConfig::class.java, HttpMeController::class.java).autowire()
+//
+//        this.client.get()
+//                .uri("/principal")
+//                .exchange()
+//                .expectStatus().isOk
+//                .expectBody<String>().consumeWith { body -> assertThat(body.responseBody).isNull() }
+//    }
+//
+//    @EnableWebFluxSecurity
+//    @EnableWebFlux
+//    open class AnonymousDisabledConfig {
+//        @Bean
+//        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+//            return http {
+//                anonymous {
+//                    disable()
+//                }
+//            }
+//        }
+//    }
+//
+//    @Test
+//    fun `anonymous when custom key specified then custom key used`() {
+//        this.spring.register(CustomKeyConfig::class.java, HttpMeController::class.java).autowire()
+//
+//        this.client.get()
+//                .uri("/key")
+//                .exchange()
+//                .expectStatus().isOk
+//                .expectBody<String>().isEqualTo("key".hashCode().toString())
+//    }
+//
+//    @EnableWebFluxSecurity
+//    @EnableWebFlux
+//    open class CustomKeyConfig {
+//        @Bean
+//        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+//            return http {
+//                anonymous {
+//                    key = "key"
+//                }
+//            }
+//        }
+//    }
+//
+//    @Test
+//    fun `anonymous when custom authorities specified then custom authorities used`() {
+//        this.spring.register(CustomAuthoritiesConfig::class.java, HttpMeController::class.java).autowire()
+//
+//        this.client.get()
+//                .uri("/principal")
+//                .exchange()
+//                .expectStatus().isOk
+//    }
+//
+//    @EnableWebFluxSecurity
+//    @EnableWebFlux
+//    open class CustomAuthoritiesConfig {
+//        @Bean
+//        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+//            return http {
+//                anonymous {
+//                    authorities = listOf(SimpleGrantedAuthority("TEST"))
+//                }
+//                authorizeExchange {
+//                    authorize(anyExchange, hasAuthority("TEST"))
+//                }
+//            }
+//        }
+//    }
+//
     @RestController
     class HttpMeController {
         @GetMapping("/principal")
